@@ -1,0 +1,38 @@
+# Dataset (too large, link in README)
+*.npy
+*.npz
+dataset,npy
+
+# Generated weights (auto-generated, instructions in README)
+weights.h
+weights_int8.npz
+quant_params.json
+scale_factors.npy
+weights_int16.npz
+weights_quantised.npy
+all_results.json
+live_result.json
+
+# Vivado/HLS build artifacts
+*.log
+*.jou
+*.str
+*.xpr
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.gen/
+*.sim/
+*.bit
+*.hwh
+*.ltx
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
