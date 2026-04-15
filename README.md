@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # FPGA-Based Radar Target Classification on PYNQ-Z2
 
 **Real-time drone vs bird classification using a 1D CNN hardware accelerator on Zynq-7020 FPGA**
