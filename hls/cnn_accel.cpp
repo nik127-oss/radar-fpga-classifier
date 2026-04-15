@@ -1,8 +1,4 @@
-/*
- * cnn_accel.cpp — Calibrated requantization version
- * After each conv layer: output = clamp((acc * M) >> REQUANT_SHIFT, 0, ACT_MAX)
- * M values computed from real data calibration
- */
+
 #include "cnn_accel.h"
 #include "weights.h"
 #include <stdint.h>
@@ -22,19 +18,14 @@ void cnn_accelerator(
     int32_t conv3_out[16][4];
     long long fc_out[4];
 
-    // Quantize input: [0,255] -> [0, ACT_MAX]
     int32_t q_input[64];
     for (int i = 0; i < 64; i++) {
         #pragma HLS PIPELINE II=1
-        // Treat int8 as unsigned: -128..127 -> 0..255
         int val = (int)input_features[i];
         if (val < 0) val += 256;
         q_input[i] = (int32_t)((val * ACT_MAX) / 255);
     }
 
-    // ============================================================
-    // LAYER 1: Conv1d(1->8, k=5, pad=2) + ReLU + Requant + MaxPool(2)
-    // ============================================================
     CONV1_OC: for (int oc = 0; oc < 8; oc++) {
         CONV1_POOL: for (int op = 0; op < 32; op++) {
             #pragma HLS PIPELINE II=2
@@ -61,9 +52,7 @@ void cnn_accelerator(
         }
     }
 
-    // ============================================================
-    // LAYER 2: Conv1d(8->16, k=3, pad=1) + ReLU + Requant + MaxPool(2)
-    // ============================================================
+
     CONV2_OC: for (int oc = 0; oc < 16; oc++) {
         CONV2_POOL: for (int op = 0; op < 16; op++) {
             #pragma HLS PIPELINE II=4
@@ -90,9 +79,6 @@ void cnn_accelerator(
         }
     }
 
-    // ============================================================
-    // LAYER 3: Conv1d(16->16, k=3, pad=1) + ReLU + Requant + AvgPool(4)
-    // ============================================================
     CONV3_OC: for (int oc = 0; oc < 16; oc++) {
         CONV3_AVGPOOL: for (int op = 0; op < 4; op++) {
             #pragma HLS PIPELINE II=8
@@ -119,9 +105,7 @@ void cnn_accelerator(
         }
     }
 
-    // ============================================================
-    // FC: Linear(64 -> 4) — no requantization, just argmax
-    // ============================================================
+
     FC_CLASS: for (int c = 0; c < 4; c++) {
         #pragma HLS PIPELINE II=4
         long long sum = (long long)fc_bias[c];
